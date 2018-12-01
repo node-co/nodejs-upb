@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <style>
+      .boton-azul {
+        color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/react@16.6.1/umd/react.development.js"
+    ></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!-- script de babel para poder usar JSX en la siguiente línea -->
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+    <script type="text/babel">
+      const app = document.getElementById('app');
+
+      const contenido = 'cualquier cosa por ahora';
+
+      class Elemento extends React.Component {
+        state = {
+          frases: []
+        };
+
+        componentDidMount() {
+          fetch('/frases')
+            .then(function(response) {
+              return response.json();
+            })
+            .then(frases => {
+              this.setState({ frases: frases });
+            });
+        }
+
+        render() {
+          return (
+            <div>
+              {this.state.frases.map(frase => (
+                <div>{frase}</div>
+              ))}
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(<Elemento />, app);
+    </script>
+  </body>
+</html>

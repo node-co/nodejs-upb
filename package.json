@@ -1,0 +1,17 @@
+{
+  "name": "nodejs-upb",
+  "version": "1.0.0",
+  "description": "taller nodejs + react upb",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "nodeco",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "nodemon": "^1.18.7"
+  }
+}
