@@ -13,20 +13,28 @@
       type="text/javascript"
       src="https://unpkg.com/react@16.6.1/umd/react.development.js"
     ></script>
+
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+
     <!-- script de babel para poder usar JSX en la siguiente línea -->
     <script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
+
     <script type="text/babel">
       const app = document.getElementById('app');
+      const Button = () => <button>hola soy un botón</button>;
 
-      const contenido = 'cualquier cosa por ahora';
-
-      class Elemento extends React.Component {
+      class Lista extends React.Component {
         state = {
-          frases: []
+          frases: [],
+          nuevaFrase: '',
+          index: null
         };
 
         componentDidMount() {
+          this.traerFrases();
+        }
+
+        traerFrases() {
           fetch('/frases')
             .then(function(response) {
               return response.json();
@@ -36,18 +44,109 @@
             });
         }
 
+        eliminarFrase(index) {
+          fetch(`/frases/${index}`, { method: 'delete' }).then(() => {
+            let frases = this.state.frases;
+            frases = frases.filter((frase, index2) => index2 !== index);
+            this.setState({ frases: frases });
+          });
+        }
+
+        manejadorTexto = e => {
+          this.setState({ nuevaFrase: e.target.value });
+        };
+
+        crearFrase = () => {
+          if (this.state.nuevaFrase.length > 0) {
+            fetch(`/frases`, {
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+              },
+              method: 'post',
+              body: JSON.stringify({ frase: this.state.nuevaFrase })
+            })
+              .then(response => {
+                return response.json();
+              })
+              .then(frase => {
+                let frases = [...this.state.frases];
+                frases.push(frase.frase);
+                this.setState({ frases: frases });
+              });
+          } else {
+            alert('nueva frase vacía');
+          }
+        };
+
+        actualizarFrase = () => {
+          if (this.state.nuevaFrase.length > 0 && this.state.index !== null) {
+            fetch(`/frases/${this.state.index}`, {
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+              },
+              method: 'put',
+              body: JSON.stringify({ frase: this.state.nuevaFrase })
+            })
+              .then(response => {
+                return response.json();
+              })
+              .then(frase => {
+                let frases = [...this.state.frases];
+                frases[this.state.index] = frase;
+                this.setState({ frases: frases });
+              });
+          } else {
+            alert('nueva frase vacía');
+          }
+        };
+
+        fraseParaActualizar(index, frase) {
+          this.setState({
+            index: index,
+            nuevaFrase: frase
+          });
+        }
+
         render() {
           return (
             <div>
-              {this.state.frases.map(frase => (
-                <div>{frase}</div>
+              <div>
+                <input
+                  type="text"
+                  onChange={this.manejadorTexto}
+                  value={this.state.nuevaFrase}
+                />
+                <button
+                  onClick={() =>
+                    this.state.index !== null
+                      ? this.actualizarFrase()
+                      : this.crearFrase()
+                  }
+                >
+                  guardar
+                </button>
+              </div>
+              {this.state.frases.map((frase, index) => (
+                <div key={`frase-${index}`}>
+                  {frase}{' '}
+                  <button
+                    onClick={() => this.fraseParaActualizar(index, frase)}
+                  >
+                    actualizar
+                  </button>{' '}
+                  <button onClick={() => this.eliminarFrase(index)}>
+                    eliminar
+                  </button>{' '}
+                </div>
               ))}
             </div>
           );
         }
       }
 
-      ReactDOM.render(<Elemento />, app);
+      ReactDOM.render(<Lista />, app);
     </script>
   </body>
 </html>
